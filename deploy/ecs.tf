@@ -11,6 +11,8 @@ data "template_file" "hc_app" {
     fargate_cpu    = var.fargate_cpu
     fargate_memory = var.fargate_memory
     aws_region     = var.aws_region
+    db_host        = aws_rds_cluster.cluster.reader_endpoint
+    db_password    = aws_rds_cluster.cluster.master_password
   }
 }
 

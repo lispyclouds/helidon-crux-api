@@ -46,3 +46,19 @@ variable "fargate_memory" {
   description = "Fargate instance memory to provision (in MiB)"
   default     = "2048"
 }
+
+variable "aurora_cluster_name" {
+  default = "customers-cluster"
+}
+
+variable "aurora_db_name" {
+  default = "customers"
+}
+
+variable "aurora_instance_class" {
+  default = "db.t3.medium"
+}
+
+variable "aurora_username" {
+  default = "helidon"
+}
