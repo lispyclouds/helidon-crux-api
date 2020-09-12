@@ -1,0 +1,51 @@
+name: "Build-Test-Deploy"
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
+
+      - name: "Prepare Java"
+        uses: "actions/setup-java@v1"
+        with:
+          java-version: "14"
+
+      - name: "Apply Cache"
+        uses: "actions/cache@v1"
+        with:
+          path: "~/.gradle/caches"
+          key: "${{ runner.os }}-helidon-crux-${{ hashFiles('build.gradle') }}"
+          restore-keys: "${{ runner.os }}-helidon-crux-"
+
+      - name: "Build jar"
+        run: "./gradlew shadowJar"
+
+      - name: "Upload Jar"
+        uses: "actions/upload-artifact@v1"
+        with:
+          name: "helidon-crux-jar"
+          path: "build/libs/app.jar"
+
+  publish:
+    needs: "build"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
+
+      - name: "Download Jar"
+        uses: "actions/download-artifact@v1"
+        with:
+          name: "helidon-crux-jar"
+
+      - name: "Publish to Docker Hub"
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker login --username="${{ secrets.DOCKERHUB_USERNAME }}" --password="${{ secrets.DOCKERHUB_PASSWORD }}" && \
+          docker push rahulde/helidon-crux-api:latest
