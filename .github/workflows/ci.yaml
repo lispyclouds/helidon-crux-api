@@ -44,6 +44,9 @@ jobs:
         with:
           name: "helidon-crux-jar"
 
+      - name: "Build Docker image"
+        run: "docker build -t rahulde/helidon-crux-api:latest ."
+
       - name: "Publish to Docker Hub"
         if: github.ref == 'refs/heads/master'
         run: |
