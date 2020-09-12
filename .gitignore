@@ -30,3 +30,7 @@ build/
 
 # OS Files
 .DS_Store
+
+# Deployment
+.terraform/
+plan
