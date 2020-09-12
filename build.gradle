@@ -13,12 +13,14 @@ repositories {
     maven { url "https://clojars.org/repo" }
 }
 
-def crux_version = "20.09-1.11.0-beta"
+def cruxVersion = "20.09-1.11.0-beta"
+def helidonVersion = "2.0.2"
 
 dependencies {
-    implementation "io.helidon.webserver:helidon-webserver:2.0.2"
-    implementation "juxt:crux-core:$crux_version"
-    implementation "juxt:crux-jdbc:$crux_version"
+    implementation "io.helidon.webserver:helidon-webserver:$helidonVersion"
+    implementation "io.helidon.config:helidon-config:$helidonVersion"
+    implementation "juxt:crux-core:$cruxVersion"
+    implementation "juxt:crux-jdbc:$cruxVersion"
     implementation "org.postgresql:postgresql:42.2.16"
 }
 
@@ -39,4 +41,8 @@ tasks.withType(Test) {
 
 tasks.withType(JavaExec) {
     jvmArgs += "--enable-preview"
+}
+
+shadowJar {
+    archiveFileName = "app.jar"
 }
