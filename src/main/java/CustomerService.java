@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import crux.api.ICruxAPI;
 import data.Customer;
+import io.helidon.common.http.Http;
 import io.helidon.config.Config;
 import io.helidon.webserver.Routing;
 import io.helidon.webserver.ServerRequest;
@@ -9,8 +10,11 @@ import io.helidon.webserver.Service;
 import utils.ThrowingFunction;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static utils.Response.errorResponse;
 import static utils.Response.jsonResponse;
 import static utils.Response.respond;
 
@@ -35,7 +39,8 @@ public class CustomerService implements Service {
     public void update(Routing.Rules rules) {
         rules
             .get("/", (request, response) -> respond(this::healthCheck, request, response))
-            .get("/customers", (request, response) -> respond(this::listCustomers, request, response));
+            .get("/customers", (request, response) -> respond(this::listCustomers, request, response))
+            .post("/customers", (request, response) -> respond(this::addCustomer, request, response));
     }
 
     public void healthCheck(ServerRequest request, ServerResponse response) throws JsonProcessingException {
@@ -50,7 +55,7 @@ public class CustomerService implements Service {
                 """
         );
 
-        final var customers = node
+        final var customers = this.node
             .db()
             .query(query)
             .stream()
@@ -59,5 +64,40 @@ public class CustomerService implements Service {
             .collect(Collectors.toList());
 
         jsonResponse(response, customers);
+    }
+
+    public void addCustomer(ServerRequest request, ServerResponse response) {
+        final var query =
+            """
+                [[:crux.tx/put
+                  {:crux.db/id :customers/c-%s
+                   :type       :customer
+                   :id         "%s"
+                   :firstName  "%s"
+                   :lastName   "%s"
+                   :email      "%s"}]]
+                """;
+        final var id = UUID.randomUUID().toString();
+
+        // TODO: Use a ThrowingConsumer when needed
+        request
+            .content()
+            .as(Customer.class)
+            .thenAccept(customer -> {
+                try {
+                    final var formatted = String.format(
+                        query, id, id, customer.firstName(), customer.lastName(), customer.email()
+                    );
+                    this.node.submitTx((List<List<?>>) DB.datafy(formatted));
+                    jsonResponse(response, id, Http.Status.ACCEPTED_202);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            })
+            .exceptionally(ex -> {
+                errorResponse(response, ex.getMessage(), Http.Status.BAD_REQUEST_400);
+                return null;
+            });
     }
 }
