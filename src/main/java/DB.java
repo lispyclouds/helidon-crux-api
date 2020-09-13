@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.util.Map;
 
 public class DB {
-    private final ICruxAPI node;
+    public final ICruxAPI node;
     private final static ObjectMapper objectMapper = new ObjectMapper();
     private final static IFn toJson;
 

@@ -8,11 +8,10 @@ import java.util.concurrent.TimeoutException;
 public class Main {
     public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
         final var config = Config.create();
-
-        new DB();
+        final var db = new DB();
 
         WebServer
-            .create(Routes.routes(), config.get("server"))
+            .create(Routes.routes(db.node), config.get("server"))
             .start()
             .toCompletableFuture()
             .get(30, TimeUnit.SECONDS);
