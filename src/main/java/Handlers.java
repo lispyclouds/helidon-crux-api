@@ -3,28 +3,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import crux.api.ICruxAPI;
 import data.Customer;
 import io.helidon.webserver.ServerResponse;
+import utils.ThrowingFunction;
 
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-
-// Magic ✨
-// See: https://dzone.com/articles/how-to-handle-checked-exception-in-lambda-expressi
-@FunctionalInterface
-interface ThrowingFunction<T, R, E extends Throwable> {
-
-    R apply(T t) throws E;
-
-    static <T, R, E extends Throwable> Function<T, R> unchecked(ThrowingFunction<T, R, E> f) {
-        return t -> {
-            try {
-                return f.apply(t);
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-}
 
 public class Handlers {
     private static final ObjectMapper objMapper = new ObjectMapper();
@@ -51,7 +33,7 @@ public class Handlers {
         response.send(objMapper.writeValueAsString(respMap));
     }
 
-    public static void healthCheck(ServerResponse response) throws JsonProcessingException {
+    public static void healthCheck(ServerResponse response, ICruxAPI node) throws JsonProcessingException {
         jsonResponse(response, "Never Forget!");
     }
 
