@@ -21,8 +21,7 @@ public class DB {
         toJson = Clojure.var("jsonista.core", "write-value-as-string");
     }
 
-    public DB() {
-        final var config = Config.create();
+    public DB(Config config) {
         final var dbName = config.get("DB_NAME").asString().orElse("customers");
         final var dbHost = config.get("DB_HOST").asString().orElse("localhost");
         final var dbPort = config.get("DB_PORT").asInt().orElse(5432);

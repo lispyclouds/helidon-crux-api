@@ -19,6 +19,7 @@ def helidonVersion = "2.0.2"
 dependencies {
     implementation "io.helidon.webserver:helidon-webserver:$helidonVersion"
     implementation "io.helidon.config:helidon-config:$helidonVersion"
+    implementation "io.helidon.metrics:helidon-metrics:$helidonVersion"
     implementation "juxt:crux-core:$cruxVersion"
     implementation "juxt:crux-jdbc:$cruxVersion"
     implementation "org.postgresql:postgresql:42.2.16"

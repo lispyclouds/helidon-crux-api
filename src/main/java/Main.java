@@ -1,21 +1,29 @@
 import io.helidon.config.Config;
+import io.helidon.metrics.MetricsSupport;
+import io.helidon.webserver.Routing;
 import io.helidon.webserver.WebServer;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 public class Main {
-    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
+    public static void main(String[] args) {
         final var config = Config.create();
-        final var db = new DB();
+        final var customerService = new CustomerService(config);
+        final var metricsSupport = MetricsSupport.create();
+        final var routing = Routing.builder()
+            .register(metricsSupport)
+            .register(customerService)
+            .build();
 
         WebServer
-            .create(Routes.routes(db.node), config.get("server"))
+            .create(routing, config.get("server"))
             .start()
-            .toCompletableFuture()
-            .get(30, TimeUnit.SECONDS);
-
-        System.out.println("Server started.");
+            .thenAccept(webServer -> {
+                System.out.println("Server started on port: " + webServer.port());
+                webServer.whenShutdown().thenRun(customerService::stop);
+            })
+            .exceptionally(ex -> {
+                System.err.println("Startup failed: " + ex.getMessage());
+                ex.printStackTrace(System.err);
+                return null;
+            });
     }
 }
