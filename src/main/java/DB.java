@@ -1,5 +1,8 @@
 import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 import clojure.lang.Keyword;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import crux.api.Crux;
 import crux.api.ICruxAPI;
 import io.helidon.config.Config;
@@ -8,7 +11,15 @@ import java.time.Duration;
 import java.util.Map;
 
 public class DB {
-    private ICruxAPI node;
+    private final ICruxAPI node;
+    private final static ObjectMapper objectMapper = new ObjectMapper();
+    private final static IFn toJson;
+
+    static {
+        Clojure.var("clojure.core", "require")
+            .invoke(Clojure.read("jsonista.core"));
+        toJson = Clojure.var("jsonista.core", "write-value-as-string");
+    }
 
     public DB() {
         final var config = Config.create();
@@ -36,5 +47,9 @@ public class DB {
 
     public static Object datafy(String raw) {
         return Clojure.read(raw);
+    }
+
+    public static <T> T objectify(Object data, Class<T> cls) throws JsonProcessingException {
+        return objectMapper.readValue((String) toJson.invoke(data), cls);
     }
 }

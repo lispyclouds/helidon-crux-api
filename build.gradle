@@ -22,6 +22,7 @@ dependencies {
     implementation "juxt:crux-core:$cruxVersion"
     implementation "juxt:crux-jdbc:$cruxVersion"
     implementation "org.postgresql:postgresql:42.2.16"
+    implementation "metosin:jsonista:0.2.7"
 }
 
 compileJava {
