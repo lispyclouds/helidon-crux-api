@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "hc_log_group" {
   }
 }
 
-resource "aws_cloudwatch_log_stream" "cb_log_stream" {
+resource "aws_cloudwatch_log_stream" "hc_log_stream" {
   name           = "hc-log-stream"
   log_group_name = aws_cloudwatch_log_group.hc_log_group.name
 }
