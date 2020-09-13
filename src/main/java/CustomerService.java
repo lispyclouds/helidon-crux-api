@@ -50,9 +50,9 @@ public class CustomerService implements Service {
     public void listCustomers(ServerRequest request, ServerResponse response) throws JsonProcessingException {
         final var query = DB.datafy(
             """
-                {:find  [(eql/project ?customer [:id :firstName :lastName :email])]
-                 :where [[?customer :type :customer]]}
-                """
+            {:find  [(eql/project ?customer [:id :firstName :lastName :email])]
+             :where [[?customer :type :customer]]}
+            """
         );
 
         final var customers = this.node
@@ -69,14 +69,14 @@ public class CustomerService implements Service {
     public void addCustomer(ServerRequest request, ServerResponse response) {
         final var query =
             """
-                [[:crux.tx/put
-                  {:crux.db/id :customers/c-%s
-                   :type       :customer
-                   :id         "%s"
-                   :firstName  "%s"
-                   :lastName   "%s"
-                   :email      "%s"}]]
-                """;
+            [[:crux.tx/put
+              {:crux.db/id :customers/c-%s
+               :type       :customer
+               :id         "%s"
+               :firstName  "%s"
+               :lastName   "%s"
+               :email      "%s"}]]
+            """;
         final var id = UUID.randomUUID().toString();
 
         // TODO: Use a ThrowingConsumer when needed

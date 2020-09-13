@@ -8,5 +8,6 @@ public record Customer(
     @JsonProperty("id") String id,
     @JsonProperty("firstName") String firstName,
     @JsonProperty("lastName") String lastName,
-    @JsonProperty("email") String email) {
+    @JsonProperty("email") String email
+) {
 }

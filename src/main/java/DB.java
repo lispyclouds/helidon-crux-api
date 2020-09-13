@@ -28,15 +28,16 @@ public class DB {
         final var dbUser = config.get("DB_USER").asString().orElse("helidon");
         final var dbPassword = config.get("DB_PASSWORD").asString().orElse("helidon");
 
-        final var nodeConfig = String.format("""
-                {:crux.node/topology [crux.jdbc/topology]
-                 :crux.jdbc/dbtype   "postgresql"
-                 :crux.jdbc/dbname   "%s"
-                 :crux.jdbc/host     "%s"
-                 :crux.jdbc/port     %d
-                 :crux.jdbc/user     "%s"
-                 :crux.jdbc/password "%s"}
-                """,
+        final var nodeConfig = String.format(
+            """
+            {:crux.node/topology [crux.jdbc/topology]
+             :crux.jdbc/dbtype   "postgresql"
+             :crux.jdbc/dbname   "%s"
+             :crux.jdbc/host     "%s"
+             :crux.jdbc/port     %d
+             :crux.jdbc/user     "%s"
+             :crux.jdbc/password "%s"}
+            """,
             dbName, dbHost, dbPort, dbUser, dbPassword
         );
 
