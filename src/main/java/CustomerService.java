@@ -38,7 +38,8 @@ public class CustomerService implements Service {
         rules
             .get("/", this::healthCheck)
             .get("/customers", this::listCustomers)
-            .post("/customers", this::addCustomer);
+            .post("/customers", this::addCustomer)
+            .delete("/customers/{id}", this::deleteCustomer);
     }
 
     public void healthCheck(ServerRequest request, ServerResponse response) {
@@ -97,5 +98,17 @@ public class CustomerService implements Service {
                 errorResponse(response, ex.getMessage(), Http.Status.BAD_REQUEST_400);
                 return null;
             });
+    }
+
+    public void deleteCustomer(ServerRequest request, ServerResponse response) {
+        final var id = request.path().param("id");
+        final var query = String.format(
+            """
+            [[:crux.tx/delete :customers/c-%s]]
+            """, id
+        );
+
+        this.node.submitTx((List<List<?>>) DB.datafy(query));
+        jsonResponse(response, "OK");
     }
 }
