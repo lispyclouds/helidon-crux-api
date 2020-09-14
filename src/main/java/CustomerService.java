@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import crux.api.ICruxAPI;
 import data.Customer;
 import io.helidon.common.http.Http;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 
 import static utils.Response.errorResponse;
 import static utils.Response.jsonResponse;
-import static utils.Response.respond;
 
 public class CustomerService implements Service {
     private final ICruxAPI node;
@@ -38,16 +36,16 @@ public class CustomerService implements Service {
     @Override
     public void update(Routing.Rules rules) {
         rules
-            .get("/", (request, response) -> respond(this::healthCheck, request, response))
-            .get("/customers", (request, response) -> respond(this::listCustomers, request, response))
-            .post("/customers", (request, response) -> respond(this::addCustomer, request, response));
+            .get("/", this::healthCheck)
+            .get("/customers", this::listCustomers)
+            .post("/customers", this::addCustomer);
     }
 
-    public void healthCheck(ServerRequest request, ServerResponse response) throws JsonProcessingException {
+    public void healthCheck(ServerRequest request, ServerResponse response) {
         jsonResponse(response, "Never Forget!");
     }
 
-    public void listCustomers(ServerRequest request, ServerResponse response) throws JsonProcessingException {
+    public void listCustomers(ServerRequest request, ServerResponse response) {
         final var query = DB.datafy(
             """
             {:find  [(eql/project ?customer [:id :firstName :lastName :email])]
