@@ -54,15 +54,19 @@ public class CustomerService implements Service {
             """
         );
 
-        final var customers = this.node
-            .db()
-            .query(query)
-            .stream()
-            .map(result -> result.get(0)) // List of results, take first.
-            .map(ThrowingFunction.unchecked(result -> DB.objectify(result, Customer.class)))
-            .collect(Collectors.toList());
+        try {
+            final var customers = this.node
+                .db()
+                .query(query)
+                .stream()
+                .map(result -> result.get(0)) // List of results, take first.
+                .map(ThrowingFunction.unchecked(result -> DB.objectify(result, Customer.class)))
+                .collect(Collectors.toList());
 
-        jsonResponse(response, customers);
+            jsonResponse(response, customers);
+        } catch (Exception ex) {
+            errorResponse(response, ex.getMessage(), Http.Status.BAD_REQUEST_400);
+        }
     }
 
     public void addCustomer(ServerRequest request, ServerResponse response) {
@@ -105,7 +109,8 @@ public class CustomerService implements Service {
         final var query = String.format(
             """
             [[:crux.tx/delete :customers/c-%s]]
-            """, id
+            """,
+            id
         );
 
         this.node.submitTx((List<List<?>>) DB.datafy(query));
