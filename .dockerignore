@@ -1,5 +1,3 @@
-.gradle
-.idea
-.gitignore
-LICENSE
-README.md
+*
+!build/libs/app.jar
+!helidon-crux-jar/app.jar
