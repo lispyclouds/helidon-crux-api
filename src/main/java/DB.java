@@ -1,6 +1,5 @@
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
-import clojure.lang.Keyword;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crux.api.Crux;
@@ -8,7 +7,6 @@ import crux.api.ICruxAPI;
 import io.helidon.config.Config;
 
 import java.time.Duration;
-import java.util.Map;
 
 public class DB {
     public final ICruxAPI node;
@@ -27,21 +25,27 @@ public class DB {
         final var dbPort = config.get("DB_PORT").asInt().orElse(5432);
         final var dbUser = config.get("DB_USER").asString().orElse("helidon");
         final var dbPassword = config.get("DB_PASSWORD").asString().orElse("helidon");
-
-        final var nodeConfig = String.format(
+        final var connectionPool = datafy(
             """
-            {:crux.node/topology [crux.jdbc/topology]
-             :crux.jdbc/dbtype   "postgresql"
-             :crux.jdbc/dbname   "%s"
-             :crux.jdbc/host     "%s"
-             :crux.jdbc/port     %d
-             :crux.jdbc/user     "%s"
-             :crux.jdbc/password "%s"}
-            """,
-            dbName, dbHost, dbPort, dbUser, dbPassword
+            {:dialect crux.jdbc.psql/->dialect
+             :db-spec {:dbname   "%s"
+                       :host     "%s"
+                       :port     %d
+                       :user     "%s"
+                       :password "%s"}}
+            """.formatted(dbName, dbHost, dbPort, dbUser, dbPassword)
         );
 
-        this.node = Crux.startNode((Map<Keyword, ?>) datafy(nodeConfig));
+        this.node = Crux.startNode(configurator -> {
+            configurator.with("crux/tx-log", txLog -> {
+                txLog.module("crux.jdbc/->tx-log");
+                txLog.set("connection-pool", connectionPool);
+            });
+            configurator.with("crux/document-store", docStore -> {
+                docStore.module("crux.jdbc/->document-store");
+                docStore.set("connection-pool", connectionPool);
+            });
+        });
         this.node.sync(Duration.ofSeconds(30)); // Become consistent for a max of 30s
     }
 

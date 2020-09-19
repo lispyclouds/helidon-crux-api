@@ -88,8 +88,8 @@ public class CustomerService implements Service {
             .as(Customer.class)
             .thenAccept(customer -> {
                 try {
-                    final var formatted = String.format(
-                        query, id, id, customer.firstName(), customer.lastName(), customer.email()
+                    final var formatted = query.formatted(
+                        id, id, customer.firstName(), customer.lastName(), customer.email()
                     );
                     this.node.submitTx((List<List<?>>) DB.datafy(formatted));
                     jsonResponse(response, id, Http.Status.ACCEPTED_202);
@@ -106,14 +106,13 @@ public class CustomerService implements Service {
 
     public void deleteCustomer(ServerRequest request, ServerResponse response) {
         final var id = request.path().param("id");
-        final var query = String.format(
+        final var query = DB.datafy(
             """
             [[:crux.tx/delete :customers/c-%s]]
-            """,
-            id
+            """.formatted(id)
         );
 
-        this.node.submitTx((List<List<?>>) DB.datafy(query));
+        this.node.submitTx((List<List<?>>) query);
         jsonResponse(response, "OK");
     }
 }
