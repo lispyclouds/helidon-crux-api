@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "application"
-    id "com.github.johnrengelman.shadow" version "6.0.0"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
     id "com.github.ben-manes.versions" version "0.33.0"
 }
 
@@ -13,8 +13,8 @@ repositories {
     maven { url "https://clojars.org/repo" }
 }
 
-def cruxVersion = "20.09-1.12.0-beta"
-def helidonVersion = "2.0.2"
+def cruxVersion = "20.09-1.12.1-beta"
+def helidonVersion = "2.1.0"
 
 dependencies {
     implementation "io.helidon.webserver:helidon-webserver:$helidonVersion"
@@ -23,7 +23,7 @@ dependencies {
     implementation "io.helidon.media:helidon-media-jackson:$helidonVersion"
     implementation "juxt:crux-core:$cruxVersion"
     implementation "juxt:crux-jdbc:$cruxVersion"
-    implementation "org.postgresql:postgresql:42.2.16"
+    implementation "org.postgresql:postgresql:42.2.18"
     implementation "metosin:jsonista:0.2.7"
 }
 
